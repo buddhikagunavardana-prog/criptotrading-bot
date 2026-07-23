@@ -33,13 +33,13 @@ class StrategyFactory:
             "name": "VWAP ATR AI Engine",
             "category": "Quantitative AI & Volatility",
             "description": "Combines VWAP mean-reversion, ATR dynamic volatility risk management, and AI Scoring Engine threshold verification.",
-            "min_score": 75.0
+            "min_score": 30.0
         },
         "smc_order_block": {
             "name": "SMC Order Block Expansion",
             "category": "Smart Money Concepts",
             "description": "Identifies institutional order blocks and enters on mitigation retests.",
-            "min_score": 70.0
+            "min_score": 30.0
         },
         "fvg_inversion": {
             "name": "SMC FVG Inversion",
@@ -115,6 +115,6 @@ class StrategyFactory:
                 "name": strategy_key.title(),
                 "category": "Custom Quantitative",
                 "description": f"Custom execution framework for '{strategy_key}'",
-                "min_score": 75.0
+                "min_score": 30.0
             }
         )

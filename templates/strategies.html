@@ -173,7 +173,7 @@
                         <span>Select Strategy Engine Module</span>
                     </label>
                     <span id="active-strategy-min-score" class="text-[11px] font-extrabold text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
-                        AI Threshold: 75.0/100
+                        AI Threshold: 30.0/100
                     </span>
                 </div>
 
@@ -787,14 +787,14 @@
                 name: "VWAP ATR AI Engine",
                 category: "Quantitative AI & Volatility",
                 description: "Combines VWAP mean-reversion, ATR dynamic volatility risk management, and AI Scoring Engine threshold verification.",
-                minScore: 75.0,
+                minScore: 30.0,
                 indicators: "VWAP, ATR (14), EMA 200"
             },
             "smc_order_block": {
                 name: "SMC Order Block Expansion",
                 category: "Smart Money Concepts",
                 description: "Identifies institutional order blocks on higher timeframes and enters on mitigation retests.",
-                minScore: 70.0,
+                minScore: 30.0,
                 indicators: "Order Blocks, Volume Profile, Liquidity"
             },
             "fvg_inversion": {

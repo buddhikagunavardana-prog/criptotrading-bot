@@ -20,14 +20,14 @@ logger = logging.getLogger(__name__)
 class VWAPATRAIEngine:
     """
     VWAP + ATR AI Futures Trading Strategy Engine.
-    Requires AI score >= 75.0 before triggering order execution.
+    Requires AI score >= 30.0 before triggering order execution.
     """
 
     def __init__(
         self,
         ccxt_handler: Optional[CCXTHandler] = None,
         alert_service: Optional[AlertService] = None,
-        min_ai_score_threshold: float = 75.0
+        min_ai_score_threshold: float = 30.0
     ):
         self.ccxt_handler = ccxt_handler or CCXTHandler()
         self.alert_service = alert_service or AlertService()
@@ -74,8 +74,8 @@ class VWAPATRAIEngine:
         Executes the VWAP + ATR AI Strategy pipeline:
         1. Calculates technical indicators (VWAP, ATR).
         2. Evaluates setup via AI Scoring Engine.
-        3. If score >= 75: calculates dynamic SL/TP levels and executes futures market order.
-        4. If score < 75: rejects trade execution with safety warning.
+        3. If score >= 30: calculates dynamic SL/TP levels and executes futures market order.
+        4. If score < 30: rejects trade execution with safety warning.
         """
         side_clean = side.upper().strip()
         formatted_symbol = self.ccxt_handler.format_symbol(symbol)
@@ -142,7 +142,7 @@ class VWAPATRAIEngine:
             "risk_management": risk_levels
         }
 
-        # 5. Order Execution Condition (AI score >= 75)
+        # 5. Order Execution Condition (AI score >= )
         if is_approved:
             logger.info(f"AI Score {ai_score} >= {self.min_ai_score_threshold}. Approving and executing trade.")
             order_result = self.ccxt_handler.execute_market_order(

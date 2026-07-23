@@ -269,7 +269,7 @@ class VWAPATRBacktester:
         trade_allocation_pct: float = 10.0,
         leverage: int = 10,
         atr_multiplier: float = 2.0,
-        min_ai_score: float = 75.0
+        min_ai_score: float = 30.0
     ):
         self.symbol = symbol
         self.timeframe = timeframe
@@ -613,7 +613,7 @@ def main():
     parser.add_argument("--balance", type=float, default=10000.0, help="Initial account balance in USDT")
     parser.add_argument("--leverage", type=int, default=10, help="Leverage multiplier")
     parser.add_argument("--atr-multiplier", type=float, default=2.0, help="ATR multiplier for Stop Loss / Take Profit")
-    parser.add_argument("--min-score", type=float, default=75.0, help="Minimum AI conviction score to open trade")
+    parser.add_argument("--min-score", type=float, default=30.0, help="Minimum AI conviction score to open trade")
 
     args = parser.parse_args()
 

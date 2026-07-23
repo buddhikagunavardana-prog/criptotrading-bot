@@ -15,7 +15,7 @@ class AIScoringEngine:
     for quantitative crypto futures trades.
     """
 
-    def __init__(self, strong_buy_threshold: float = 75.0, buy_threshold: float = 60.0):
+    def __init__(self, strong_buy_threshold: float = 30.0, buy_threshold: float = 60.0):
         self.strong_buy_threshold = strong_buy_threshold
         self.buy_threshold = buy_threshold
 
