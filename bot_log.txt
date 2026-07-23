@@ -1,0 +1,64 @@
+2026-07-21 06:08:20,198 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 06:08:20,930 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -108 ms).
+2026-07-21 06:08:20,938 [INFO] TradingBotEngine: --- Trading Engine Cycle Started: 2026-07-21 06:08:20 ---
+2026-07-21 06:08:20,938 [INFO] TradingBotEngine: Fetching candles for BTC/USDT on 15m timeframe...
+2026-07-21 06:08:22,409 [INFO] TradingBotEngine: Binance API Call (fetch_ohlcv) round-trip latency: 1470.5ms
+2026-07-21 06:08:22,409 [ERROR] TradingBotEngine: CRITICAL SAFETY EVENT: Binance API latency of 1470.5ms exceeds safety threshold of 500ms. Aborting trading cycle to avoid executing stale signals.
+2026-07-21 06:11:50,573 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 06:11:51,076 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -110 ms).
+2026-07-21 06:11:51,084 [INFO] TradingBotEngine: --- Trading Engine Cycle Started: 2026-07-21 06:11:51 ---
+2026-07-21 06:11:51,084 [INFO] TradingBotEngine: Fetching candles for BTC/USDT on 15m timeframe...
+2026-07-21 06:11:52,560 [INFO] TradingBotEngine: Binance API Call (fetch_ohlcv) round-trip latency: 1475.6ms
+2026-07-21 06:11:52,570 [INFO] TradingBotEngine: Triggering scheduled news headlines sentiment analysis for BTC/USDT...
+2026-07-21 06:11:56,225 [INFO] TradingBotEngine: Current Metrics: Price = $65,674.42 | RSI(14) = 62.28 | SMA50 = $65,380.36 | SMA200 = $64,792.89
+2026-07-21 06:15:14,370 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 06:15:14,872 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -110 ms).
+2026-07-21 06:15:14,880 [INFO] TradingBotEngine: --- Trading Engine Cycle Started: 2026-07-21 06:15:14 ---
+2026-07-21 06:15:14,880 [INFO] TradingBotEngine: Fetching candles for BTC/USDT on 15m timeframe...
+2026-07-21 06:15:16,588 [INFO] TradingBotEngine: Binance API Call (fetch_ohlcv) round-trip latency: 1707.9ms
+2026-07-21 06:15:16,588 [ERROR] TradingBotEngine: CRITICAL SAFETY EVENT: Binance API latency of 1707.9ms exceeds safety threshold of 1500ms. Aborting trading cycle to avoid executing stale signals.
+2026-07-21 06:15:29,813 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 06:15:30,302 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -108 ms).
+2026-07-21 06:15:30,310 [INFO] TradingBotEngine: --- Trading Engine Cycle Started: 2026-07-21 06:15:30 ---
+2026-07-21 06:15:30,310 [INFO] TradingBotEngine: Fetching candles for BTC/USDT on 15m timeframe...
+2026-07-21 06:15:31,778 [INFO] TradingBotEngine: Binance API Call (fetch_ohlcv) round-trip latency: 1467.5ms
+2026-07-21 06:15:31,784 [INFO] TradingBotEngine: Triggering scheduled news headlines sentiment analysis for BTC/USDT...
+2026-07-21 06:15:35,427 [INFO] TradingBotEngine: Current Metrics: Price = $65,724.90 | RSI(14) = 66.14 | SMA50 = $65,384.23 | SMA200 = $64,798.23
+2026-07-21 06:18:28,141 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 06:18:28,632 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -108 ms).
+2026-07-21 06:18:28,642 [INFO] TradingBotEngine: --- Trading Engine Cycle Started: 2026-07-21 06:18:28 ---
+2026-07-21 06:18:28,642 [INFO] TradingBotEngine: Fetching candles for BTC/USDT on 15m timeframe...
+2026-07-21 06:18:30,115 [INFO] TradingBotEngine: Binance API Call (fetch_ohlcv) round-trip latency: 1472.6ms
+2026-07-21 06:18:30,121 [INFO] TradingBotEngine: Triggering scheduled news headlines sentiment analysis for BTC/USDT...
+2026-07-21 06:18:34,086 [INFO] TradingBotEngine: Current Metrics: Price = $65,695.32 | RSI(14) = 63.63 | SMA50 = $65,383.64 | SMA200 = $64,798.08
+2026-07-21 06:21:07,174 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 06:21:07,673 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -111 ms).
+2026-07-21 06:21:07,681 [INFO] TradingBotEngine: --- Trading Engine Cycle Started: 2026-07-21 06:21:07 ---
+2026-07-21 06:21:07,681 [INFO] TradingBotEngine: Fetching candles for BTC/USDT on 15m timeframe...
+2026-07-21 06:21:09,184 [INFO] TradingBotEngine: Binance API Call (fetch_ohlcv) round-trip latency: 1502.7ms
+2026-07-21 06:21:09,191 [INFO] TradingBotEngine: Triggering scheduled news headlines sentiment analysis for BTC/USDT...
+2026-07-21 06:21:13,155 [INFO] TradingBotEngine: Current Metrics: Price = $65,665.99 | RSI(14) = 61.32 | SMA50 = $65,383.05 | SMA200 = $64,797.93
+2026-07-21 06:21:35,887 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 06:21:36,802 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -109 ms).
+2026-07-21 06:21:36,814 [INFO] TradingBotEngine: Valid Bullish OB Zone detected: [95.00 - 102.00]
+2026-07-21 06:21:36,814 [INFO] TradingBotEngine: Price $101.00 tests and mitigates Bullish OB! Adding 20 points.
+2026-07-21 06:21:36,817 [INFO] TradingBotEngine: Valid Bearish OB Zone detected: [99.00 - 105.00]
+2026-07-21 06:21:36,817 [INFO] TradingBotEngine: Price $100.00 tests and mitigates Bearish OB! Adding 20 points.
+2026-07-21 07:22:47,411 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 07:22:47,919 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -113 ms).
+2026-07-21 07:23:03,141 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 07:23:03,836 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -109 ms).
+2026-07-21 07:23:03,844 [INFO] TradingBotEngine: --- Trading Engine Cycle Started: 2026-07-21 07:23:03 ---
+2026-07-21 07:23:03,844 [INFO] TradingBotEngine: Fetching candles for BTC/USDT on 15m timeframe...
+2026-07-21 07:23:05,764 [INFO] TradingBotEngine: Binance API Call (fetch_ohlcv) round-trip latency: 1920.1ms
+2026-07-21 07:23:06,167 [INFO] TradingBotEngine: Requesting dynamically adjusted weights from Gemini AI Co-pilot...
+2026-07-21 07:23:11,323 [INFO] TradingBotEngine: Received dynamically adjusted weights: {'rsi': 35.0, 'ma': 75.0, 'fvg': 25.0, 'ob': 25.0}
+2026-07-21 07:23:11,324 [INFO] TradingBotEngine: Triggering scheduled news headlines sentiment analysis for BTC/USDT...
+2026-07-21 07:23:14,751 [INFO] TradingBotEngine: Current Metrics: Price = $65,946.00 | RSI(14) = 72.76 | SMA50 = $65,421.92 | SMA200 = $64,822.39
+2026-07-21 07:31:53,198 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 07:31:53,743 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -112 ms).
+2026-07-21 07:32:10,550 [INFO] TradingBotEngine: Initialized BINANCE in SANDBOX/PAPER-TRADING mode.
+2026-07-21 07:32:11,044 [INFO] TradingBotEngine: Binance Client initialized in TESTNET mode. Time sync successful (Offset: -110 ms).
+2026-07-21 07:32:11,055 [INFO] TradingBotEngine: AI Influence Multiplier applied: 1.00x. Final Weights: RSI=30.0, MA=40.0, FVG=15.0, OB=15.0
+2026-07-21 07:32:11,055 [INFO] TradingBotEngine: AI Influence Multiplier applied: 0.00x. Final Weights: RSI=40.0, MA=60.0, FVG=20.0, OB=20.0
+2026-07-21 07:32:11,055 [INFO] TradingBotEngine: AI Influence Multiplier applied: 2.00x. Final Weights: RSI=20.0, MA=20.0, FVG=10.0, OB=10.0

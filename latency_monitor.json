@@ -1,0 +1,191 @@
+[
+  {
+    "timestamp": "2026-07-22 17:38:38.388",
+    "api_name": "fetch_time",
+    "rtt_ms": 0.0,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.388",
+    "api_name": "load_markets",
+    "rtt_ms": 0.0,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.388",
+    "api_name": "fetch_ticker_price",
+    "rtt_ms": 0.0,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.388",
+    "api_name": "fetch_ohlcv",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.388",
+    "api_name": "set_margin_mode_ISOLATED",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.389",
+    "api_name": "set_leverage_10X",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.389",
+    "api_name": "fetch_position_config",
+    "rtt_ms": 0.02,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.389",
+    "api_name": "get_market_rules",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.389",
+    "api_name": "calculate_min_order_quantity",
+    "rtt_ms": 0.03,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.390",
+    "api_name": "fetch_balance_USDT",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.390",
+    "api_name": "execute_market_order_BUY",
+    "rtt_ms": 0.04,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.390",
+    "api_name": "fetch_order_entry_verification",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.390",
+    "api_name": "fetch_open_positions",
+    "rtt_ms": 0.02,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.391",
+    "api_name": "create_conditional_order_SL",
+    "rtt_ms": 0.03,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.391",
+    "api_name": "create_conditional_order_TP",
+    "rtt_ms": 0.02,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.391",
+    "api_name": "fetch_open_orders_verification",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.392",
+    "api_name": "fetch_order_SL_verification",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.392",
+    "api_name": "fetch_order_TP_verification",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.392",
+    "api_name": "fetch_ticker_price_before_exit",
+    "rtt_ms": 0.0,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.393",
+    "api_name": "execute_market_order_SELL",
+    "rtt_ms": 0.03,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.393",
+    "api_name": "fetch_order_exit_verification",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.393",
+    "api_name": "cancel_all_orders",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.394",
+    "api_name": "fetch_open_positions_cleanup",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.394",
+    "api_name": "fetch_open_orders_cleanup",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.394",
+    "api_name": "fetch_balance_USDT_post",
+    "rtt_ms": 0.0,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.395",
+    "api_name": "emergency_cancel_all_orders",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  },
+  {
+    "timestamp": "2026-07-22 17:38:38.395",
+    "api_name": "emergency_fetch_positions",
+    "rtt_ms": 0.01,
+    "status": "SUCCESS",
+    "details": {}
+  }
+]

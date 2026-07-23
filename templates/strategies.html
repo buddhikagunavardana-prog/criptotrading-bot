@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#080B10] text-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Trading Strategies & Performance Metrics</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- React 18 & ReactDOM 18 for Recharts -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Recharts Library -->
+    <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-image: radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.25) 0%, rgba(8, 11, 16, 1) 80%);
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glass-card {
+            background: rgba(15, 20, 28, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .glow-active {
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+        }
+        @keyframes flashUp {
+            0% { background-color: rgba(16, 185, 129, 0.35); border-color: rgba(52, 211, 153, 0.8); transform: scale(1.02); }
+            100% { background-color: rgba(15, 20, 28, 0.75); border-color: rgba(255, 255, 255, 0.05); transform: scale(1.0); }
+        }
+        @keyframes flashDown {
+            0% { background-color: rgba(244, 63, 94, 0.35); border-color: rgba(251, 113, 133, 0.8); transform: scale(1.02); }
+            100% { background-color: rgba(15, 20, 28, 0.75); border-color: rgba(255, 255, 255, 0.05); transform: scale(1.0); }
+        }
+        .flash-up {
+            animation: flashUp 0.8s ease-out;
+        }
+        .flash-down {
+            animation: flashDown 0.8s ease-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-full p-4 sm:p-8">
+
+    <div class="max-w-7xl w-full mx-auto flex flex-col gap-8">
+        
+        <!-- Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-gray-800">
+            <div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-600/20 p-2.5 rounded-xl border border-indigo-500/30">
+                        <i data-lucide="line-chart" class="w-6 h-6 text-indigo-400"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black tracking-tight text-white">Active Strategies Dashboard</h1>
+                        <p class="text-xs text-gray-400 mt-0.5">Real-time performance metrics and live operational status</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400 font-semibold">Total Strategies: <strong class="text-white mono">{{ strategies|length }}</strong></span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Live Engine Active
+                </span>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Navigation Tab Bar -->
+        <div class="flex flex-wrap items-center gap-3 pt-1">
+            <button onclick="switchMainTab('launcher')" id="main-tab-launcher" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center gap-2 bg-indigo-600/30 text-white border border-indigo-500/60 shadow-lg shadow-indigo-600/20 cursor-pointer">
+                <i data-lucide="play-circle" class="w-4 h-4 text-indigo-400"></i>
+                Live Trading Launcher
+            </button>
+            <button onclick="switchMainTab('history')" id="main-tab-history" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center gap-2 bg-gray-900/80 text-gray-400 border border-gray-800 hover:text-white hover:border-gray-700 cursor-pointer">
+                <i data-lucide="history" class="w-4 h-4 text-emerald-400"></i>
+                Trade History Tab
+                <span id="nav-trade-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0 Executed</span>
+            </button>
+            <button onclick="switchMainTab('performance')" id="main-tab-performance" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center gap-2 bg-gray-900/80 text-gray-400 border border-gray-800 hover:text-white hover:border-gray-700 cursor-pointer">
+                <i data-lucide="line-chart" class="w-4 h-4 text-indigo-400"></i>
+                Performance Tab (Recharts)
+                <span id="nav-pnl-badge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">P&L Chart</span>
+            </button>
+        </div>
+
+        <!-- Live Crypto Price Ticker Component -->
+        <section class="glass-card rounded-2xl p-6 relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 pb-4 border-b border-gray-800/80">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                        <i data-lucide="radio" class="w-5 h-5 text-indigo-400 animate-pulse"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-white tracking-wide flex items-center gap-2">
+                            Futures Live Ticker Stream
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">USDT-M</span>
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Real-time WebSocket market updates with directional tick flash</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span id="ticker-status-pill" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                        <span id="status-text">Connecting Stream...</span>
+                    </span>
+                    <button onclick="fetchTickersFallback()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 transition-all hover:text-white text-xs font-semibold flex items-center gap-1" title="Force Refresh">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ticker Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="ticker-cards-container">
+                <!-- Initial Skeleton Placeholders -->
+                <div class="glass-card rounded-xl p-4 animate-pulse flex flex-col gap-2">
+                    <div class="h-4 bg-gray-800 rounded w-1/2"></div>
+                    <div class="h-6 bg-gray-700 rounded w-3/4"></div>
+                </div>
+                <div class="glass-card rounded-xl p-4 animate-pulse flex flex-col gap-2">
+                    <div class="h-4 bg-gray-800 rounded w-1/2"></div>
+                    <div class="h-6 bg-gray-700 rounded w-3/4"></div>
+                </div>
+                <div class="glass-card rounded-xl p-4 animate-pulse flex flex-col gap-2">
+                    <div class="h-4 bg-gray-800 rounded w-1/2"></div>
+                    <div class="h-6 bg-gray-700 rounded w-3/4"></div>
+                </div>
+                <div class="glass-card rounded-xl p-4 animate-pulse flex flex-col gap-2">
+                    <div class="h-4 bg-gray-800 rounded w-1/2"></div>
+                    <div class="h-6 bg-gray-700 rounded w-3/4"></div>
+                </div>
+                <div class="glass-card rounded-xl p-4 animate-pulse flex flex-col gap-2">
+                    <div class="h-4 bg-gray-800 rounded w-1/2"></div>
+                    <div class="h-6 bg-gray-700 rounded w-3/4"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Top 5 Futures Trading Pair Switcher & Bot Execution Panel -->
+        <section class="glass-card rounded-2xl p-6 relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-gray-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-indigo-600/20 rounded-xl border border-indigo-500/30">
+                        <i data-lucide="sliders" class="w-5 h-5 text-indigo-400"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-white tracking-wide">Futures Pair Launcher & Control Panel</h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Select from top 5 futures pairs to trigger AI strategy execution & dynamic risk management</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-gray-400">Supported Top 5 Pairs:</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">5 ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Dynamic Strategy Module Tabs Bar -->
+            <div class="mb-5 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-extrabold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="cpu" class="w-4 h-4 text-indigo-400"></i>
+                        <span>Select Strategy Engine Module</span>
+                    </label>
+                    <span id="active-strategy-min-score" class="text-[11px] font-extrabold text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
+                        AI Threshold: 75.0/100
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="strategy-tabs-bar">
+                    <button type="button" onclick="selectStrategyTab('vwap_atr_ai')" id="tab-vwap_atr_ai" class="strategy-tab-btn px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 whitespace-nowrap bg-indigo-600/30 text-white border border-indigo-500/60 shadow-md shadow-indigo-600/20 cursor-pointer">
+                        <i data-lucide="zap" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        VWAP / ATR AI Engine
+                    </button>
+                    <button type="button" onclick="selectStrategyTab('smc_order_block')" id="tab-smc_order_block" class="strategy-tab-btn px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 whitespace-nowrap bg-gray-900/80 text-gray-400 border border-gray-800 hover:text-gray-200 hover:border-gray-700 cursor-pointer">
+                        <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                        SMC Order Block
+                    </button>
+                    <button type="button" onclick="selectStrategyTab('fvg_inversion')" id="tab-fvg_inversion" class="strategy-tab-btn px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 whitespace-nowrap bg-gray-900/80 text-gray-400 border border-gray-800 hover:text-gray-200 hover:border-gray-700 cursor-pointer">
+                        <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
+                        FVG Inversion
+                    </button>
+                    <button type="button" onclick="selectStrategyTab('liquidity_sweep')" id="tab-liquidity_sweep" class="strategy-tab-btn px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 whitespace-nowrap bg-gray-900/80 text-gray-400 border border-gray-800 hover:text-gray-200 hover:border-gray-700 cursor-pointer">
+                        <i data-lucide="waves" class="w-3.5 h-3.5"></i>
+                        Liquidity Sweep
+                    </button>
+                    <button type="button" onclick="selectStrategyTab('adx_trend')" id="tab-adx_trend" class="strategy-tab-btn px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 whitespace-nowrap bg-gray-900/80 text-gray-400 border border-gray-800 hover:text-gray-200 hover:border-gray-700 cursor-pointer">
+                        <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                        ADX Trend
+                    </button>
+                    <button type="button" onclick="selectStrategyTab('triple_screen')" id="tab-triple_screen" class="strategy-tab-btn px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 whitespace-nowrap bg-gray-900/80 text-gray-400 border border-gray-800 hover:text-gray-200 hover:border-gray-700 cursor-pointer">
+                        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                        Triple Screen
+                    </button>
+                </div>
+
+                <!-- Dynamic Strategy Info Card -->
+                <div id="strategy-info-banner" class="p-3.5 rounded-xl bg-gray-950/70 border border-indigo-500/20 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-indigo-500/10 rounded-lg text-indigo-400 border border-indigo-500/20 shrink-0 mt-0.5 sm:mt-0">
+                            <i data-lucide="info" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span id="info-strat-title" class="font-extrabold text-white text-sm">VWAP ATR AI Engine</span>
+                                <span id="info-strat-cat" class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Quantitative AI & Volatility</span>
+                            </div>
+                            <p id="info-strat-desc" class="text-gray-400 text-xs mt-0.5">Combines VWAP mean-reversion, ATR dynamic volatility risk management, and AI Scoring Engine threshold verification.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 text-[11px] font-bold text-gray-300">
+                        <span class="text-gray-500">Required Indicators:</span>
+                        <span id="info-strat-indicators" class="mono text-indigo-300 bg-gray-900 px-2 py-1 rounded border border-gray-800">VWAP, ATR, EMA 200</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Launcher Form Grid -->
+            <form id="bot-launcher-form" onsubmit="handleBotLaunch(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                <!-- 1. Futures Pair Switcher Dropdown -->
+                <div class="lg:col-span-2 flex flex-col gap-1.5">
+                    <label class="text-xs font-extrabold text-gray-300 uppercase tracking-wider flex items-center justify-between">
+                        <span>Trading Pair</span>
+                        <span id="pair-live-price" class="text-[10px] text-emerald-400 mono font-bold">Live $--.--</span>
+                    </label>
+                    <select id="pair-select" onchange="onPairChange()" class="w-full bg-gray-900/90 border border-indigo-500/40 rounded-xl px-3.5 py-2.5 text-sm font-black text-white focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 transition-all cursor-pointer">
+                        <option value="BTC/USDT" selected>BTC/USDT — Bitcoin Futures</option>
+                        <option value="ETH/USDT">ETH/USDT — Ethereum Futures</option>
+                        <option value="SOL/USDT">SOL/USDT — Solana Futures</option>
+                        <option value="DOGE/USDT">DOGE/USDT — Dogecoin Futures</option>
+                        <option value="XRP/USDT">XRP/USDT — Ripple Futures</option>
+                    </select>
+                </div>
+
+                <!-- 2. Strategy Engine Selector -->
+                <div class="lg:col-span-1 flex flex-col gap-1.5">
+                    <label class="text-xs font-extrabold text-gray-300 uppercase tracking-wider">Strategy Dropdown</label>
+                    <select id="strategy-select" onchange="onStrategyDropdownChange()" class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-200 focus:outline-none focus:border-indigo-400 transition-all cursor-pointer">
+                        <option value="vwap_atr_ai" selected>VWAP ATR AI Engine</option>
+                        <option value="smc_order_block">SMC Order Block</option>
+                        <option value="fvg_inversion">FVG Inversion</option>
+                        <option value="liquidity_sweep">Liquidity Sweep</option>
+                        <option value="adx_trend">ADX Trend</option>
+                        <option value="triple_screen">Triple Screen</option>
+                    </select>
+                </div>
+
+                <!-- 3. Timeframe -->
+                <div class="lg:col-span-1 flex flex-col gap-1.5">
+                    <label class="text-xs font-extrabold text-gray-300 uppercase tracking-wider">Timeframe</label>
+                    <select id="timeframe-select" class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-200 focus:outline-none focus:border-indigo-400 transition-all cursor-pointer">
+                        <option value="1m">1m</option>
+                        <option value="5m">5m</option>
+                        <option value="15m" selected>15m</option>
+                        <option value="1h">1h</option>
+                        <option value="4h">4h</option>
+                    </select>
+                </div>
+
+                <!-- 4. Direction Side -->
+                <div class="lg:col-span-1 flex flex-col gap-1.5">
+                    <label class="text-xs font-extrabold text-gray-300 uppercase tracking-wider">Side</label>
+                    <select id="side-select" onchange="recalculateRiskSummary()" class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-xs font-bold text-emerald-400 focus:outline-none focus:border-indigo-400 transition-all cursor-pointer">
+                        <option value="BUY" selected>BUY / LONG</option>
+                        <option value="SELL">SELL / SHORT</option>
+                    </select>
+                </div>
+
+                <!-- 5. Leverage -->
+                <div class="lg:col-span-1 flex flex-col gap-1.5">
+                    <label class="text-xs font-extrabold text-gray-300 uppercase tracking-wider">Leverage</label>
+                    <select id="leverage-select" onchange="recalculateRiskSummary()" class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-xs font-bold text-amber-400 focus:outline-none focus:border-indigo-400 transition-all cursor-pointer">
+                        <option value="5">5x</option>
+                        <option value="10" selected>10x</option>
+                        <option value="20">20x</option>
+                        <option value="50">50x</option>
+                        <option value="100">100x</option>
+                    </select>
+                </div>
+
+                <!-- Action Button -->
+                <div class="lg:col-span-6 flex justify-end mt-2">
+                    <button type="submit" id="btn-launch-bot" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-extrabold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="play" class="w-4 h-4 fill-white"></i>
+                        Execute AI Strategy for Selected Pair
+                    </button>
+                </div>
+            </form>
+
+            <!-- Execution Result Card Output Container -->
+            <div id="execution-result-container" class="hidden mt-6 p-5 rounded-xl border border-gray-800 bg-gray-950/80 transition-all duration-300">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </section>
+
+        <!-- RiskManagementEngine Summary View Section -->
+        <section class="glass-card rounded-2xl p-6 relative overflow-hidden border border-indigo-500/30">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 pb-4 border-b border-gray-800/80">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-indigo-400"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-white tracking-wide flex items-center gap-2">
+                            RiskManagementEngine Summary View
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">DYNAMIC ATR SIZING</span>
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Live account balance, calculated risk-per-trade, and dynamic Stop-Loss / Take-Profit levels</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5 bg-gray-900/90 px-3 py-1.5 rounded-xl border border-gray-700 text-xs">
+                        <span class="text-gray-400 font-extrabold">Account Balance:</span>
+                        <span class="text-gray-400">$</span>
+                        <input type="number" id="risk-input-balance" value="10000" onchange="recalculateRiskSummary()" onkeyup="recalculateRiskSummary()" class="w-24 bg-transparent text-white font-extrabold mono focus:outline-none text-right">
+                        <span class="text-gray-500 text-[10px] uppercase font-bold">USDT</span>
+                    </div>
+                    <button onclick="recalculateRiskSummary()" class="px-3.5 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/40 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+                        Calculate Risk
+                    </button>
+                </div>
+            </div>
+
+            <!-- Risk Metrics Summary View Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Card 1: Account Balance -->
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-gray-400 text-xs font-bold">
+                        <span>Current Account Balance</span>
+                        <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
+                    </div>
+                    <div class="mt-2">
+                        <span id="risk-summary-balance" class="text-2xl font-black text-white mono">$10,000.00</span>
+                        <div class="text-[10px] text-emerald-400 font-extrabold mt-0.5">Available Account Equity</div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Calculated Risk-Per-Trade -->
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-gray-400 text-xs font-bold">
+                        <span>Calculated Risk-per-Trade</span>
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+                    </div>
+                    <div class="mt-2">
+                        <span id="risk-summary-risk-usd" class="text-2xl font-black text-amber-400 mono">$200.00</span>
+                        <div id="risk-summary-risk-pct" class="text-[10px] text-amber-300 font-extrabold mt-0.5">2.00% of Account Balance</div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Dynamic Stop-Loss -->
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-gray-400 text-xs font-bold">
+                        <span>Dynamic Stop-Loss (Risk Engine)</span>
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i>
+                    </div>
+                    <div class="mt-2">
+                        <span id="risk-summary-sl-price" class="text-2xl font-black text-rose-400 mono">$65,025.00</span>
+                        <div id="risk-summary-sl-distance" class="text-[10px] text-rose-300 font-extrabold mt-0.5">-1.50% ATR Volatility Distance</div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Dynamic Take-Profit -->
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-gray-400 text-xs font-bold">
+                        <span>Dynamic Take-Profit (Risk Engine)</span>
+                        <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i>
+                    </div>
+                    <div class="mt-2">
+                        <span id="risk-summary-tp-price" class="text-2xl font-black text-emerald-400 mono">$68,025.00</span>
+                        <div id="risk-summary-tp-distance" class="text-[10px] text-emerald-300 font-extrabold mt-0.5">+3.00% ATR Volatility Target</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Position Sizing & Safety Parameters Bar -->
+            <div class="mt-4 pt-4 border-t border-gray-800/60 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="bg-gray-950/60 p-2.5 rounded-lg border border-gray-850 flex flex-col">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Calculated Position Units</span>
+                    <span id="risk-summary-units" class="font-extrabold text-indigo-300 mono mt-0.5">0.2051 BTC</span>
+                </div>
+                <div class="bg-gray-950/60 p-2.5 rounded-lg border border-gray-850 flex flex-col">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Notional Position Value</span>
+                    <span id="risk-summary-notional" class="font-extrabold text-white mono mt-0.5">$13,536.60 USDT</span>
+                </div>
+                <div class="bg-gray-950/60 p-2.5 rounded-lg border border-gray-850 flex flex-col">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Required Margin (10x Leverage)</span>
+                    <span id="risk-summary-margin" class="font-extrabold text-amber-300 mono mt-0.5">$1,353.66 USDT</span>
+                </div>
+                <div class="bg-gray-950/60 p-2.5 rounded-lg border border-gray-850 flex flex-col">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Risk-to-Reward Ratio</span>
+                    <span id="risk-summary-rrr" class="font-extrabold text-emerald-400 mono mt-0.5">2.00 : 1 (Safety Approved)</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Analytics & Recharts Daily P&L Visualizer Section -->
+        <section id="section-performance-tab" class="glass-card rounded-2xl p-6 relative overflow-hidden border border-indigo-500/30">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 pb-4 border-b border-gray-800/80">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-indigo-400"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-white tracking-wide flex items-center gap-2">
+                            Daily Realized Profit & Loss (Recharts)
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">RECHARTS LINE CHART</span>
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Interactive daily realized P&L and cumulative performance curve aggregated directly from SQLite database logs</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="loadPerformanceAnalytics()" class="px-3.5 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                        Refresh Analytics
+                    </button>
+                </div>
+            </div>
+
+            <!-- Performance Key Metrics Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Total Cumulative P&L</span>
+                    <div class="mt-2">
+                        <span id="perf-metric-total-pnl" class="text-xl font-black text-emerald-400 mono">+$0.00</span>
+                        <div class="text-[10px] text-gray-500 font-extrabold mt-0.5">SQLite Realized Sum</div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Average Daily P&L</span>
+                    <div class="mt-2">
+                        <span id="perf-metric-avg-daily" class="text-xl font-black text-indigo-300 mono">$0.00</span>
+                        <div class="text-[10px] text-gray-500 font-extrabold mt-0.5">Per Trading Day</div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Win Rate</span>
+                    <div class="mt-2">
+                        <span id="perf-metric-winrate" class="text-xl font-black text-emerald-400 mono">100.0%</span>
+                        <div class="text-[10px] text-gray-500 font-extrabold mt-0.5">Executed Trades Ratio</div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Total Executed Trades</span>
+                    <div class="mt-2">
+                        <span id="perf-metric-executed-count" class="text-xl font-black text-white mono">0</span>
+                        <div class="text-[10px] text-gray-500 font-extrabold mt-0.5">Persisted Orders</div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Best Single Day</span>
+                    <div class="mt-2">
+                        <span id="perf-metric-best-day" class="text-xl font-black text-amber-400 mono">+$0.00</span>
+                        <div class="text-[10px] text-gray-500 font-extrabold mt-0.5">Max Daily Gain</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recharts Container Canvas -->
+            <div class="bg-gray-950/80 p-5 rounded-2xl border border-gray-800/80 mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-gray-850">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                        <span class="text-xs font-extrabold text-gray-200">Daily Realized P&L ($)</span>
+                        <span class="text-gray-600 font-bold px-1">|</span>
+                        <span class="w-3 h-3 rounded-full bg-indigo-500"></span>
+                        <span class="text-xs font-extrabold text-indigo-300">Cumulative P&L Curve ($)</span>
+                    </div>
+                    <div class="text-[11px] font-bold text-gray-400">
+                        Rendered with <span class="text-indigo-400 font-extrabold">Recharts 2.x</span>
+                    </div>
+                </div>
+
+                <!-- Recharts Target Mounting Container -->
+                <div id="recharts-performance-root" class="w-full h-80 sm:h-96 flex items-center justify-center text-gray-500 font-extrabold text-xs">
+                    Initializing Recharts engine...
+                </div>
+            </div>
+
+            <!-- Daily P&L Breakdown Table -->
+            <div class="overflow-x-auto rounded-xl border border-gray-800">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-900/90 text-[10px] font-extrabold text-gray-400 uppercase border-b border-gray-800">
+                        <tr>
+                            <th class="py-2.5 px-3">Date</th>
+                            <th class="py-2.5 px-3">Executed Trades</th>
+                            <th class="py-2.5 px-3">Wins / Losses</th>
+                            <th class="py-2.5 px-3">Win Rate (%)</th>
+                            <th class="py-2.5 px-3">Daily Realized P&L ($)</th>
+                            <th class="py-2.5 px-3">Cumulative P&L ($)</th>
+                            <th class="py-2.5 px-3 text-right">Day Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="perf-daily-tbody" class="divide-y divide-gray-800/60 font-medium">
+                        <tr>
+                            <td colspan="7" class="py-6 text-center text-gray-500 text-xs font-semibold">
+                                Loading daily performance logs...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SQLite Trade History & Performance Logs Section -->
+        <section id="section-trade-history" class="glass-card rounded-2xl p-6 relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 pb-4 border-b border-gray-800/80">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                        <i data-lucide="database" class="w-5 h-5 text-emerald-400"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-white tracking-wide flex items-center gap-2">
+                            SQLite Trade History & Audit Log
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">PERSISTED</span>
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-0.5">All past bot execution runs, AI score evaluations, and system logs stored in local SQLite database</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="fetchDbHistory()" class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                        Refresh DB
+                    </button>
+                    <button onclick="clearDbHistory()" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        Clear History
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Chips -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5" id="db-summary-chips">
+                <div class="bg-gray-900/80 p-3 rounded-xl border border-gray-800 flex flex-col justify-center">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Total SQLite Trades</span>
+                    <span id="db-stat-total" class="text-lg font-black text-white mono mt-0.5">0</span>
+                </div>
+                <div class="bg-gray-900/80 p-3 rounded-xl border border-gray-800 flex flex-col justify-center">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Executed Orders</span>
+                    <span id="db-stat-executed" class="text-lg font-black text-emerald-400 mono mt-0.5">0</span>
+                </div>
+                <div class="bg-gray-900/80 p-3 rounded-xl border border-gray-800 flex flex-col justify-center">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Realized P&L ($)</span>
+                    <span id="db-stat-pnl" class="text-lg font-black text-emerald-400 mono mt-0.5">+$0.00</span>
+                </div>
+                <div class="bg-gray-900/80 p-3 rounded-xl border border-gray-800 flex flex-col justify-center">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Win Rate (%)</span>
+                    <span id="db-stat-winrate" class="text-lg font-black text-indigo-400 mono mt-0.5">100.0%</span>
+                </div>
+                <div class="bg-gray-900/80 p-3 rounded-xl border border-gray-800 flex flex-col justify-center">
+                    <span class="text-[10px] font-extrabold text-gray-400 uppercase">Average AI Score</span>
+                    <span id="db-stat-avg-score" class="text-lg font-black text-indigo-300 mono mt-0.5">0.0 / 100</span>
+                </div>
+            </div>
+
+            <!-- Table View Tabs -->
+            <div class="flex items-center gap-2 mb-4">
+                <button onclick="switchDbViewTab('trades')" id="db-tab-trades" class="px-3.5 py-1.5 rounded-lg text-xs font-black transition-all bg-indigo-600/30 text-white border border-indigo-500/50 cursor-pointer">
+                    Trade Records
+                </button>
+                <button onclick="switchDbViewTab('logs')" id="db-tab-logs" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gray-900 text-gray-400 border border-gray-800 hover:text-gray-200 cursor-pointer">
+                    Performance Logs
+                </button>
+            </div>
+
+            <!-- Trade History Table Container -->
+            <div id="db-trades-table-container" class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-gray-300">
+                    <thead class="bg-gray-900/90 text-[10px] font-extrabold text-gray-400 uppercase border-b border-gray-800">
+                        <tr>
+                            <th class="py-2.5 px-3">ID / Time</th>
+                            <th class="py-2.5 px-3">Pair & Strategy</th>
+                            <th class="py-2.5 px-3">Side & Lev</th>
+                            <th class="py-2.5 px-3">Amount</th>
+                            <th class="py-2.5 px-3">Entry Price</th>
+                            <th class="py-2.5 px-3">Exit Price</th>
+                            <th class="py-2.5 px-3">Profit / Loss (P&L)</th>
+                            <th class="py-2.5 px-3">SL / TP Targets</th>
+                            <th class="py-2.5 px-3">AI Score</th>
+                            <th class="py-2.5 px-3 text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="db-trades-tbody" class="divide-y divide-gray-800/60 font-medium">
+                        <tr>
+                            <td colspan="10" class="py-8 text-center text-gray-500 font-semibold">
+                                Loading persisted SQLite trade history...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- System Logs Table Container -->
+            <div id="db-logs-table-container" class="hidden overflow-x-auto">
+                <table class="w-full text-left text-xs text-gray-300">
+                    <thead class="bg-gray-900/90 text-[10px] font-extrabold text-gray-400 uppercase border-b border-gray-800">
+                        <tr>
+                            <th class="py-2.5 px-3">ID / Time</th>
+                            <th class="py-2.5 px-3">Level</th>
+                            <th class="py-2.5 px-3">Action</th>
+                            <th class="py-2.5 px-3">Context</th>
+                            <th class="py-2.5 px-3">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="db-logs-tbody" class="divide-y divide-gray-800/60 font-medium">
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-gray-500 font-semibold">
+                                Loading system performance logs...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Metrics Overview Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-card rounded-2xl p-5 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Avg Win Rate</p>
+                    <h3 class="text-2xl font-extrabold text-emerald-400 mono mt-1">{{ avg_win_rate }}%</h3>
+                </div>
+                <div class="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
+                    <i data-lucide="trophy" class="w-5 h-5 text-emerald-400"></i>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Net Profit</p>
+                    <h3 class="text-2xl font-extrabold text-indigo-400 mono mt-1">${{ total_net_profit }}</h3>
+                </div>
+                <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20">
+                    <i data-lucide="dollar-sign" class="w-5 h-5 text-indigo-400"></i>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Trades Executed</p>
+                    <h3 class="text-2xl font-extrabold text-white mono mt-1">{{ total_trades }}</h3>
+                </div>
+                <div class="bg-blue-500/10 p-3 rounded-xl border border-blue-500/20">
+                    <i data-lucide="activity" class="w-5 h-5 text-blue-400"></i>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Avg Profit Factor</p>
+                    <h3 class="text-2xl font-extrabold text-amber-400 mono mt-1">{{ avg_profit_factor }}</h3>
+                </div>
+                <div class="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
+                    <i data-lucide="zap" class="w-5 h-5 text-amber-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategies Performance Table Card -->
+        <section class="glass-card rounded-2xl overflow-hidden">
+            <div class="p-6 border-b border-gray-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i>
+                    <h2 class="text-base font-bold text-white tracking-wide">Registered Strategy Performance</h2>
+                </div>
+                <span class="text-xs text-gray-500 mono">Auto-updated via Strategy Engine</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-black/40 text-gray-400 text-xs uppercase font-extrabold tracking-wider border-b border-gray-800">
+                            <th class="py-4 px-6">Strategy Name</th>
+                            <th class="py-4 px-6">Category</th>
+                            <th class="py-4 px-6">Status</th>
+                            <th class="py-4 px-6 text-right">Win Rate</th>
+                            <th class="py-4 px-6 text-right">Net Profit</th>
+                            <th class="py-4 px-6 text-right">Profit Factor</th>
+                            <th class="py-4 px-6 text-right">Max Drawdown</th>
+                            <th class="py-4 px-6 text-right">Trades</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-800/50">
+                        {% for item in strategies %}
+                        <tr class="hover:bg-white/[0.02] transition-colors">
+                            <!-- Strategy Name & Details -->
+                            <td class="py-4 px-6">
+                                <div class="flex flex-col">
+                                    <span class="font-extrabold text-white">{{ item.name }}</span>
+                                    <span class="text-xs text-gray-500 mt-0.5 truncate max-w-xs">{{ item.description }}</span>
+                                </div>
+                            </td>
+
+                            <!-- Category -->
+                            <td class="py-4 px-6">
+                                <span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-gray-800 text-gray-300 border border-gray-700">
+                                    {{ item.category }}
+                                </span>
+                            </td>
+
+                            <!-- Status -->
+                            <td class="py-4 px-6">
+                                {% if item.status == "ACTIVE" %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 glow-active">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    ACTIVE
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-gray-800 text-gray-400 border border-gray-700">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                    STANDBY
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Win Rate -->
+                            <td class="py-4 px-6 text-right mono font-bold text-emerald-400">
+                                {{ item.win_rate }}%
+                            </td>
+
+                            <!-- Net Profit -->
+                            <td class="py-4 px-6 text-right mono font-extrabold {% if item.net_profit >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {% if item.net_profit >= 0 %}+${{ item.net_profit }}{% else %}-${{ item.net_profit|abs }}{% endif %}
+                            </td>
+
+                            <!-- Profit Factor -->
+                            <td class="py-4 px-6 text-right mono font-semibold text-amber-300">
+                                {{ item.profit_factor }}
+                            </td>
+
+                            <!-- Max Drawdown -->
+                            <td class="py-4 px-6 text-right mono font-semibold text-rose-400">
+                                -{{ item.max_drawdown }}%
+                            </td>
+
+                            <!-- Trades -->
+                            <td class="py-4 px-6 text-right mono font-semibold text-gray-300">
+                                {{ item.trades_count }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="flex justify-between items-center text-xs text-gray-500 pt-4 border-t border-gray-800">
+            <span>Futures Trading Bot Strategy Engine</span>
+            <span class="mono">Template Engine: Jinja2 / HTMLResponse</span>
+        </footer>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Top 5 Futures Trading Pairs mapping
+        const TARGET_SYMBOLS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "DOGE/USDT", "XRP/USDT"];
+        const BINANCE_STREAM_SYMBOLS = ["btcusdt", "ethusdt", "solusdt", "dogeusdt", "xrpusdt"];
+
+        // State storage for previous prices and ticker metadata
+        const priceMap = {};
+        let wsConnection = null;
+        let pollingInterval = null;
+
+        // Strategy Metadata Dictionary
+        const STRATEGY_METADATA = {
+            "vwap_atr_ai": {
+                name: "VWAP ATR AI Engine",
+                category: "Quantitative AI & Volatility",
+                description: "Combines VWAP mean-reversion, ATR dynamic volatility risk management, and AI Scoring Engine threshold verification.",
+                minScore: 75.0,
+                indicators: "VWAP, ATR (14), EMA 200"
+            },
+            "smc_order_block": {
+                name: "SMC Order Block Expansion",
+                category: "Smart Money Concepts",
+                description: "Identifies institutional order blocks on higher timeframes and enters on mitigation retests.",
+                minScore: 70.0,
+                indicators: "Order Blocks, Volume Profile, Liquidity"
+            },
+            "fvg_inversion": {
+                name: "SMC FVG Inversion",
+                category: "Smart Money Concepts",
+                description: "Tracks Fair Value Gap (FVG) inversions after key liquidity sweeps for high RRR entries.",
+                minScore: 70.0,
+                indicators: "Fair Value Gaps, Displacement, MSS"
+            },
+            "liquidity_sweep": {
+                name: "Liquidity Sweep Core",
+                category: "Smart Money Concepts",
+                description: "Scans for liquidity pool sweeps at equal highs/lows prior to directional expansion.",
+                minScore: 70.0,
+                indicators: "Buy/Sell-side Liquidity, Session Highs/Lows"
+            },
+            "adx_trend": {
+                name: "ADX Multi-Timeframe Trend",
+                category: "Statistical & Momentum",
+                description: "Trend following strategy relying on ADX trend strength readings and directional indicators (+DI/-DI).",
+                minScore: 65.0,
+                indicators: "ADX (14), +DI, -DI, EMA 50/200"
+            },
+            "triple_screen": {
+                name: "Triple Screen System",
+                category: "Trading Frameworks",
+                description: "Alexander Elder's Triple Screen framework combining trend tide, wave oscillator, and entry screen.",
+                minScore: 70.0,
+                indicators: "MACD Histogram, Stochastic, EMA 13"
+            }
+        };
+
+        function selectStrategyTab(key) {
+            const stratMeta = STRATEGY_METADATA[key] || STRATEGY_METADATA["vwap_atr_ai"];
+
+            // Update Dropdown
+            const dropdown = document.getElementById("strategy-select");
+            if (dropdown) dropdown.value = key;
+
+            // Update Tab Styles
+            document.querySelectorAll(".strategy-tab-btn").forEach(btn => {
+                btn.className = "strategy-tab-btn px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 whitespace-nowrap bg-gray-900/80 text-gray-400 border border-gray-800 hover:text-gray-200 hover:border-gray-700 cursor-pointer";
+            });
+
+            const activeTab = document.getElementById(`tab-${key}`);
+            if (activeTab) {
+                activeTab.className = "strategy-tab-btn px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 whitespace-nowrap bg-indigo-600/30 text-white border border-indigo-500/60 shadow-md shadow-indigo-600/20 cursor-pointer";
+            }
+
+            // Update Strategy Info Banner
+            document.getElementById("info-strat-title").innerText = stratMeta.name;
+            document.getElementById("info-strat-cat").innerText = stratMeta.category;
+            document.getElementById("info-strat-desc").innerText = stratMeta.description;
+            document.getElementById("info-strat-indicators").innerText = stratMeta.indicators;
+            document.getElementById("active-strategy-min-score").innerText = `AI Threshold: ${stratMeta.minScore}/100`;
+
+            lucide.createIcons();
+        }
+
+        function onStrategyDropdownChange() {
+            const selectedKey = document.getElementById("strategy-select").value;
+            selectStrategyTab(selectedKey);
+        }
+
+        function updateStatusPill(mode, text) {
+            const statusPill = document.getElementById("ticker-status-pill");
+            const statusDot = document.getElementById("status-dot");
+            const statusText = document.getElementById("status-text");
+
+            if (mode === "ws") {
+                statusPill.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+                statusText.innerText = text || "Live WebSocket Stream";
+            } else if (mode === "polling") {
+                statusPill.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20";
+                statusDot.className = "w-2 h-2 rounded-full bg-blue-400 animate-pulse";
+                statusText.innerText = text || "Live Polling Stream (1.5s)";
+            } else {
+                statusPill.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                statusDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-ping";
+                statusText.innerText = text || "Connecting...";
+            }
+        }
+
+        function onPairChange() {
+            const selectedPair = document.getElementById("pair-select").value;
+            const priceBadge = document.getElementById("pair-live-price");
+            if (priceMap[selectedPair]) {
+                const p = priceMap[selectedPair].price;
+                const formatted = p.toLocaleString('en-US', {
+                    minimumFractionDigits: p < 10 ? 4 : 2,
+                    maximumFractionDigits: p < 10 ? 4 : 2
+                });
+                priceBadge.innerText = `Live $${formatted}`;
+            } else {
+                priceBadge.innerText = `Live $--.--`;
+            }
+            recalculateRiskSummary();
+        }
+
+        async function recalculateRiskSummary() {
+            const symbolElem = document.getElementById("pair-select");
+            const symbol = symbolElem ? symbolElem.value : "BTC/USDT";
+            const sideElem = document.getElementById("side-select");
+            const side = sideElem ? sideElem.value : "BUY";
+            const leverageElem = document.getElementById("leverage-select");
+            const leverage = leverageElem ? parseInt(leverageElem.value, 10) : 10;
+            const balanceInput = document.getElementById("risk-input-balance");
+            const accountBalance = balanceInput ? (parseFloat(balanceInput.value) || 10000.0) : 10000.0;
+
+            let currentPrice = 66000.0;
+            if (priceMap[symbol] && priceMap[symbol].price) {
+                currentPrice = priceMap[symbol].price;
+            } else {
+                if (symbol.startsWith("BTC")) currentPrice = 66000.0;
+                else if (symbol.startsWith("ETH")) currentPrice = 3500.0;
+                else if (symbol.startsWith("SOL")) currentPrice = 145.0;
+                else if (symbol.startsWith("DOGE")) currentPrice = 0.125;
+                else if (symbol.startsWith("XRP")) currentPrice = 0.58;
+            }
+
+            const atrVal = parseFloat((currentPrice * 0.003).toFixed(4));
+
+            try {
+                const response = await fetch('/api/risk_evaluate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        account_balance: accountBalance,
+                        entry_price: currentPrice,
+                        side: side,
+                        leverage: leverage,
+                        atr: atrVal
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === "success" && data.risk_evaluation) {
+                    const risk = data.risk_evaluation;
+
+                    const balElem = document.getElementById("risk-summary-balance");
+                    if (balElem) balElem.innerText = `$${accountBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+                    const riskUsdElem = document.getElementById("risk-summary-risk-usd");
+                    if (riskUsdElem) riskUsdElem.innerText = `$${(risk.risk_amount_usdt || accountBalance * 0.02).toFixed(2)}`;
+
+                    const riskPctElem = document.getElementById("risk-summary-risk-pct");
+                    if (riskPctElem) riskPctElem.innerText = `${(risk.risk_pct_of_balance || 2.0).toFixed(2)}% of Account Balance ($${(risk.risk_amount_usdt || accountBalance * 0.02).toFixed(2)} Max Risk)`;
+
+                    const slPriceElem = document.getElementById("risk-summary-sl-price");
+                    if (slPriceElem) slPriceElem.innerText = `$${(risk.stop_loss || 0).toLocaleString('en-US', {minimumFractionDigits: currentPrice < 10 ? 4 : 2, maximumFractionDigits: currentPrice < 10 ? 4 : 2})}`;
+
+                    const slDistElem = document.getElementById("risk-summary-sl-distance");
+                    if (slDistElem) slDistElem.innerText = `-${(risk.sl_distance_pct || 1.5).toFixed(2)}% ATR Volatility Distance ($${(Math.abs(currentPrice - (risk.stop_loss || 0))).toFixed(currentPrice < 10 ? 4 : 2)})`;
+
+                    const tpPriceElem = document.getElementById("risk-summary-tp-price");
+                    if (tpPriceElem) tpPriceElem.innerText = `$${(risk.take_profit || 0).toLocaleString('en-US', {minimumFractionDigits: currentPrice < 10 ? 4 : 2, maximumFractionDigits: currentPrice < 10 ? 4 : 2})}`;
+
+                    const tpDistElem = document.getElementById("risk-summary-tp-distance");
+                    if (tpDistElem) tpDistElem.innerText = `+${(risk.tp_distance_pct || 3.0).toFixed(2)}% ATR Volatility Target ($${(Math.abs((risk.take_profit || 0) - currentPrice)).toFixed(currentPrice < 10 ? 4 : 2)})`;
+
+                    const unitsElem = document.getElementById("risk-summary-units");
+                    const assetCode = symbol.split('/')[0];
+                    if (unitsElem) unitsElem.innerText = `${(risk.position_units || 0).toFixed(assetCode === 'DOGE' ? 1 : 4)} ${assetCode}`;
+
+                    const notionalElem = document.getElementById("risk-summary-notional");
+                    if (notionalElem) notionalElem.innerText = `$${(risk.notional_value_usdt || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USDT`;
+
+                    const marginElem = document.getElementById("risk-summary-margin");
+                    if (marginElem) marginElem.innerText = `$${(risk.required_margin_usdt || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USDT (${leverage}x Leverage)`;
+
+                    const rrrElem = document.getElementById("risk-summary-rrr");
+                    if (rrrElem) rrrElem.innerText = `${(risk.risk_reward_ratio || 2.0).toFixed(2)} : 1 (${risk.approved ? 'Approved & Validated' : 'Check Parameters'})`;
+                }
+            } catch (err) {
+                console.warn("Risk calculation update error:", err);
+            }
+        }
+
+        function renderTickerCard(data) {
+            const symKey = data.symbol.replace('/', '_');
+            const prev = priceMap[data.symbol] || { price: data.price };
+            const isUp = data.price > prev.price;
+            const isDown = data.price < prev.price;
+
+            // Flash animation class
+            let flashClass = "";
+            if (isUp) flashClass = "flash-up";
+            else if (isDown) flashClass = "flash-down";
+
+            // Price color styling
+            let priceColorClass = "text-white";
+            let deltaBadge = `<span class="text-xs text-gray-500 mono font-semibold">0.00</span>`;
+            if (isUp) {
+                priceColorClass = "text-emerald-400";
+                const diff = (data.price - prev.price).toFixed(data.price < 10 ? 4 : 2);
+                deltaBadge = `<span class="text-xs text-emerald-400 mono font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">▲ +${diff}</span>`;
+            } else if (isDown) {
+                priceColorClass = "text-rose-400";
+                const diff = (prev.price - data.price).toFixed(data.price < 10 ? 4 : 2);
+                deltaBadge = `<span class="text-xs text-rose-400 mono font-bold bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">▼ -${diff}</span>`;
+            }
+
+            const pct24h = data.change_24h_pct || 0;
+            const is24hPos = pct24h >= 0;
+            const pct24hBadgeClass = is24hPos 
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                : "bg-rose-500/10 text-rose-400 border-rose-500/20";
+
+            const formattedPrice = data.price.toLocaleString('en-US', {
+                minimumFractionDigits: data.price < 10 ? 4 : 2,
+                maximumFractionDigits: data.price < 10 ? 4 : 2
+            });
+
+            const cardHtml = `
+                <div id="card-${symKey}" class="glass-card rounded-xl p-4 transition-all duration-300 flex flex-col justify-between gap-3 cursor-pointer hover:border-indigo-500/40 ${flashClass}" onclick="selectPairFromCard('${data.symbol}')">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="font-black text-sm tracking-tight text-white block">${data.symbol}</span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Futures 24H</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[11px] font-extrabold mono border ${pct24hBadgeClass}">
+                            ${is24hPos ? '+' : ''}${pct24h}%
+                        </span>
+                    </div>
+
+                    <div>
+                        <div class="flex items-baseline justify-between gap-2">
+                            <span class="text-xl font-black mono tracking-tight ${priceColorClass}">$${formattedPrice}</span>
+                        </div>
+                        <div class="mt-1 flex items-center justify-between">
+                            ${deltaBadge}
+                            <span class="text-[10px] text-gray-500 mono">Vol: $${(data.volume_24h || 0).toLocaleString()}k</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-800/60 text-[10px] text-gray-400 mono">
+                        <div>High: <strong class="text-gray-300">$${(data.high_24h || data.price * 1.02).toFixed(data.price < 10 ? 4 : 2)}</strong></div>
+                        <div class="text-right">Low: <strong class="text-gray-300">$${(data.low_24h || data.price * 0.98).toFixed(data.price < 10 ? 4 : 2)}</strong></div>
+                    </div>
+                </div>
+            `;
+
+            // Update state memory
+            priceMap[data.symbol] = { price: data.price, timestamp: Date.now() };
+
+            return { symKey, cardHtml };
+        }
+
+        function selectPairFromCard(symbol) {
+            const selectElem = document.getElementById("pair-select");
+            if (selectElem) {
+                selectElem.value = symbol;
+                onPairChange();
+                selectElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function updateAllTickerCards(tickers) {
+            const container = document.getElementById("ticker-cards-container");
+            let fullHtml = "";
+
+            TARGET_SYMBOLS.forEach(sym => {
+                const item = tickers[sym] || { symbol: sym, price: 100.0, change_24h_pct: 0.0 };
+                const { cardHtml } = renderTickerCard(item);
+                fullHtml += cardHtml;
+            });
+
+            container.innerHTML = fullHtml;
+            onPairChange();
+        }
+
+        async function fetchTickersFallback() {
+            try {
+                const response = await fetch('/api/tickers');
+                const result = await response.json();
+                if (result.status === "success" && result.tickers) {
+                    updateAllTickerCards(result.tickers);
+                }
+            } catch (err) {
+                console.warn("Polling ticker fetch error:", err);
+            }
+        }
+
+        function startPollingEngine() {
+            updateStatusPill("polling", "Live Stream (1.5s Polling)");
+            fetchTickersFallback();
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(fetchTickersFallback, 1500);
+        }
+
+        function initBinanceWebSocket() {
+            const streams = BINANCE_STREAM_SYMBOLS.map(s => `${s}@ticker`).join('/');
+            const wsUrl = `wss://fstream.binance.com/stream?streams=${streams}`;
+
+            try {
+                wsConnection = new WebSocket(wsUrl);
+
+                wsConnection.onopen = () => {
+                    console.log("Connected to Binance Futures WebSocket stream.");
+                    updateStatusPill("ws", "Live Binance WS Stream");
+                };
+
+                wsConnection.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        if (message && message.data) {
+                            const ticker = message.data;
+                            let pairSymbol = ticker.s;
+                            if (pairSymbol.endsWith("USDT")) {
+                                pairSymbol = pairSymbol.replace("USDT", "/USDT");
+                            }
+
+                            if (TARGET_SYMBOLS.includes(pairSymbol)) {
+                                const price = parseFloat(ticker.c);
+                                const change24hPct = parseFloat(ticker.P);
+                                const high24h = parseFloat(ticker.h);
+                                const low24h = parseFloat(ticker.l);
+                                const volume24h = Math.round(parseFloat(ticker.q) / 1000);
+
+                                const formattedData = {
+                                    symbol: pairSymbol,
+                                    price: price,
+                                    change_24h_pct: change24hPct,
+                                    high_24h: high24h,
+                                    low_24h: low24h,
+                                    volume_24h: volume24h
+                                };
+
+                                const cardElem = document.getElementById(`card-${pairSymbol.replace('/', '_')}`);
+                                if (cardElem) {
+                                    const { cardHtml } = renderTickerCard(formattedData);
+                                    cardElem.outerHTML = cardHtml;
+                                }
+                                onPairChange();
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Error processing WS message:", e);
+                    }
+                };
+
+                wsConnection.onerror = (err) => {
+                    console.warn("Binance WS error, switching to polling fallback:", err);
+                    startPollingEngine();
+                };
+
+                wsConnection.onclose = () => {
+                    console.warn("Binance WS stream closed. Falling back to polling...");
+                    startPollingEngine();
+                };
+            } catch (err) {
+                console.warn("WebSocket init failed, switching to polling:", err);
+                startPollingEngine();
+            }
+        }
+
+        async function handleBotLaunch(event) {
+            event.preventDefault();
+
+            const symbol = document.getElementById("pair-select").value;
+            const strategy = document.getElementById("strategy-select").value;
+            const timeframe = document.getElementById("timeframe-select").value;
+            const side = document.getElementById("side-select").value;
+            const leverage = parseInt(document.getElementById("leverage-select").value, 10);
+            const btn = document.getElementById("btn-launch-bot");
+            const outputContainer = document.getElementById("execution-result-container");
+
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Executing Pipeline...`;
+            lucide.createIcons();
+
+            outputContainer.classList.remove("hidden");
+            outputContainer.innerHTML = `
+                <div class="flex items-center justify-center gap-3 py-6 text-indigo-400">
+                    <i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i>
+                    <span class="text-sm font-extrabold tracking-wide">Analyzing Market Indicators & Evaluating AI Score for ${symbol}...</span>
+                </div>
+            `;
+            lucide.createIcons();
+
+            try {
+                const payload = {
+                    symbol: symbol,
+                    specific_strategy: strategy,
+                    timeframe: timeframe,
+                    side: side,
+                    leverage: leverage,
+                    atr_multiplier: 2.0,
+                    amount: symbol.startsWith("BTC") ? 0.001 : (symbol.startsWith("ETH") ? 0.01 : 1.0)
+                };
+
+                const response = await fetch('/api/start_bot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                const exec = data.strategy_execution || {};
+                const aiEval = exec.ai_evaluation || {};
+                const risk = exec.risk_management || {};
+                const order = exec.order_execution || {};
+
+                const isApproved = aiEval.approved;
+                const statusBadgeClass = isApproved 
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" 
+                    : "bg-amber-500/10 text-amber-400 border-amber-500/30";
+
+                outputContainer.innerHTML = `
+                    <div class="flex flex-col gap-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-gray-800">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-base font-black text-white">${symbol}</span>
+                                    <span class="px-2 py-0.5 rounded text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">${strategy.toUpperCase()}</span>
+                                    <span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-800 text-amber-400 border border-gray-700">${leverage}x Leverage</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1">${data.message || 'Execution cycle complete.'}</p>
+                            </div>
+                            <span class="px-3 py-1.5 rounded-xl text-xs font-extrabold border uppercase tracking-wider ${statusBadgeClass}">
+                                ${exec.status || 'FINISHED'}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                            <div class="bg-gray-900/80 p-3.5 rounded-xl border border-gray-800 flex flex-col gap-1">
+                                <span class="text-gray-400 font-bold uppercase text-[10px]">AI Confidence Score</span>
+                                <div class="flex items-baseline gap-1 mt-0.5">
+                                    <span class="text-xl font-black mono ${isApproved ? 'text-emerald-400' : 'text-amber-400'}">${aiEval.score || 0}</span>
+                                    <span class="text-gray-500">/ 100</span>
+                                </div>
+                                <span class="text-[10px] text-gray-400">Min Threshold: ${aiEval.min_required_score || 75}/100</span>
+                            </div>
+
+                            <div class="bg-gray-900/80 p-3.5 rounded-xl border border-gray-800 flex flex-col gap-1">
+                                <span class="text-gray-400 font-bold uppercase text-[10px]">Entry Price & Indicators</span>
+                                <span class="text-base font-black text-white mono mt-0.5">$${(exec.current_price || 0).toFixed(exec.current_price < 10 ? 4 : 2)}</span>
+                                <span class="text-[10px] text-gray-400">VWAP: $${(exec.indicators?.vwap || 0).toFixed(exec.current_price < 10 ? 4 : 2)} | ATR: $${(exec.indicators?.atr || 0).toFixed(4)}</span>
+                            </div>
+
+                            <div class="bg-gray-900/80 p-3.5 rounded-xl border border-gray-800 flex flex-col gap-1">
+                                <span class="text-gray-400 font-bold uppercase text-[10px]">Calculated Risk Targets</span>
+                                <div class="flex justify-between items-center text-[11px] font-bold mt-1">
+                                    <span class="text-rose-400">Stop Loss: $${(risk.stop_loss || 0).toFixed(exec.current_price < 10 ? 4 : 2)}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-[11px] font-bold">
+                                    <span class="text-emerald-400">Take Profit: $${(risk.take_profit || 0).toFixed(exec.current_price < 10 ? 4 : 2)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${order && order.order_id ? `
+                            <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs flex justify-between items-center text-emerald-300 font-semibold">
+                                <span>Order Executed Successfully! Order ID: <strong class="mono">${order.order_id}</strong></span>
+                                <span class="mono uppercase">${order.side} ${order.amount} ${symbol}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                lucide.createIcons();
+            } catch (err) {
+                outputContainer.innerHTML = `
+                    <div class="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-400 font-bold">
+                        Failed to execute strategy session: ${err.message || err}
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-white"></i> Execute AI Strategy for Selected Pair`;
+                lucide.createIcons();
+                // Refresh SQLite trade history table & Recharts performance analytics
+                fetchDbHistory();
+                loadPerformanceAnalytics();
+            }
+        }
+
+        function switchMainTab(tabName) {
+            const btnLauncher = document.getElementById("main-tab-launcher");
+            const btnHistory = document.getElementById("main-tab-history");
+            const btnPerformance = document.getElementById("main-tab-performance");
+
+            const historySection = document.getElementById("section-trade-history");
+            const perfSection = document.getElementById("section-performance-tab");
+
+            const inactiveStyle = "px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center gap-2 bg-gray-900/80 text-gray-400 border border-gray-800 hover:text-white hover:border-gray-700 cursor-pointer";
+            const activeStyle = "px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center gap-2 bg-indigo-600/30 text-white border border-indigo-500/60 shadow-lg shadow-indigo-600/20 cursor-pointer";
+
+            if (btnLauncher) btnLauncher.className = tabName === 'launcher' ? activeStyle : inactiveStyle;
+            if (btnHistory) btnHistory.className = tabName === 'history' ? activeStyle : inactiveStyle;
+            if (btnPerformance) btnPerformance.className = tabName === 'performance' ? activeStyle : inactiveStyle;
+
+            if (tabName === 'history') {
+                if (historySection) historySection.scrollIntoView({ behavior: 'smooth' });
+                fetchDbHistory();
+            } else if (tabName === 'performance') {
+                if (perfSection) perfSection.scrollIntoView({ behavior: 'smooth' });
+                loadPerformanceAnalytics();
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        let rechartsReactRoot = null;
+
+        async function loadPerformanceAnalytics() {
+            try {
+                const response = await fetch('/api/performance');
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    const dailyList = data.daily_pnl || [];
+                    const summary = data.summary || {};
+
+                    // Update metrics
+                    const totalPnl = summary.total_pnl || 0.0;
+                    const totalElem = document.getElementById("perf-metric-total-pnl");
+                    if (totalElem) {
+                        totalElem.innerText = `${totalPnl >= 0 ? '+' : '-'}$${Math.abs(totalPnl).toFixed(2)}`;
+                        totalElem.className = `text-xl font-black mono ${totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+                    }
+
+                    const execCount = summary.executed_trades || 0;
+                    const execElem = document.getElementById("perf-metric-executed-count");
+                    if (execElem) execElem.innerText = execCount;
+
+                    const winRate = summary.win_rate !== undefined ? summary.win_rate : 100.0;
+                    const winElem = document.getElementById("perf-metric-winrate");
+                    if (winElem) winElem.innerText = `${winRate.toFixed(1)}%`;
+
+                    let bestDay = 0.0;
+                    let totalDaily = 0.0;
+                    dailyList.forEach(d => {
+                        if (d.daily_pnl > bestDay) bestDay = d.daily_pnl;
+                        totalDaily += d.daily_pnl;
+                    });
+                    const avgDaily = dailyList.length > 0 ? totalDaily / dailyList.length : 0.0;
+
+                    const avgElem = document.getElementById("perf-metric-avg-daily");
+                    if (avgElem) {
+                        avgElem.innerText = `${avgDaily >= 0 ? '+' : '-'}$${Math.abs(avgDaily).toFixed(2)}`;
+                        avgElem.className = `text-xl font-black mono ${avgDaily >= 0 ? 'text-indigo-300' : 'text-rose-400'}`;
+                    }
+
+                    const bestElem = document.getElementById("perf-metric-best-day");
+                    if (bestElem) {
+                        bestElem.innerText = `+$${bestDay.toFixed(2)}`;
+                    }
+
+                    const pnlBadge = document.getElementById("nav-pnl-badge");
+                    if (pnlBadge) {
+                        pnlBadge.innerText = `${totalPnl >= 0 ? '+' : '-'}$${Math.abs(totalPnl).toFixed(2)}`;
+                        pnlBadge.className = `px-2 py-0.5 rounded-full text-[10px] font-extrabold ${totalPnl >= 0 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`;
+                    }
+
+                    // Render Recharts Line Chart
+                    renderRechartsPerformanceChart(dailyList);
+
+                    // Render Daily Table
+                    const tbody = document.getElementById("perf-daily-tbody");
+                    if (tbody) {
+                        if (dailyList.length === 0) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="7" class="py-6 text-center text-gray-500 text-xs font-semibold">
+                                        No daily trade executions recorded yet.
+                                    </td>
+                                </tr>
+                            `;
+                            return;
+                        }
+
+                        let rowsHtml = "";
+                        dailyList.slice().reverse().forEach(d => {
+                            const isProfitable = d.daily_pnl >= 0;
+                            const pnlClass = isProfitable ? 'text-emerald-400' : 'text-rose-400';
+                            const pnlSign = isProfitable ? '+' : '-';
+                            const badgeBg = isProfitable ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+
+                            rowsHtml += `
+                                <tr class="hover:bg-gray-900/50 transition-colors text-xs">
+                                    <td class="py-2.5 px-3 font-extrabold text-white mono">${d.date}</td>
+                                    <td class="py-2.5 px-3 font-extrabold text-indigo-300">${d.trades_count} Orders</td>
+                                    <td class="py-2.5 px-3 font-semibold">
+                                        <span class="text-emerald-400 font-bold">${d.wins || 0}W</span> / 
+                                        <span class="text-rose-400 font-bold">${d.losses || 0}L</span>
+                                    </td>
+                                    <td class="py-2.5 px-3 font-extrabold text-emerald-400 mono">${(d.win_rate || 100).toFixed(1)}%</td>
+                                    <td class="py-2.5 px-3 font-black mono ${pnlClass}">${pnlSign}$${Math.abs(d.daily_pnl).toFixed(2)}</td>
+                                    <td class="py-2.5 px-3 font-black mono text-indigo-300">${d.cumulative_pnl >= 0 ? '+' : '-'}$${Math.abs(d.cumulative_pnl).toFixed(2)}</td>
+                                    <td class="py-2.5 px-3 text-right">
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border ${badgeBg}">
+                                            ${isProfitable ? 'PROFITABLE DAY' : 'DRAWDOWN DAY'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        tbody.innerHTML = rowsHtml;
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load performance analytics:", err);
+            }
+        }
+
+        function renderRechartsPerformanceChart(dailyData) {
+            const container = document.getElementById("recharts-performance-root");
+            if (!container) return;
+
+            if (!window.Recharts || !window.React || !window.ReactDOM) {
+                container.innerHTML = `<div class="p-4 text-center text-rose-400 text-xs font-bold">Recharts library loading error. Please check internet connectivity.</div>`;
+                return;
+            }
+
+            const { 
+                ResponsiveContainer, LineChart, Line, XAxis, YAxis, 
+                CartesianGrid, Tooltip, Legend, ReferenceLine 
+            } = window.Recharts;
+
+            // Custom Tooltip component for Recharts
+            const CustomTooltip = ({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                    const dataPoint = payload[0].payload;
+                    const dailyPnl = dataPoint.daily_pnl || 0;
+                    const cumPnl = dataPoint.cumulative_pnl || 0;
+                    const isPositive = dailyPnl >= 0;
+
+                    return React.createElement('div', {
+                        className: 'bg-gray-900/95 border border-indigo-500/40 p-3 rounded-xl shadow-2xl text-xs backdrop-blur-md'
+                    }, [
+                        React.createElement('div', { key: 'lbl', className: 'font-extrabold text-white mb-1 pb-1 border-b border-gray-800 flex items-center justify-between gap-4' }, [
+                            React.createElement('span', { key: 'dt' }, `Date: ${label}`),
+                            React.createElement('span', { key: 'tc', className: 'text-[10px] text-indigo-300 bg-indigo-500/20 px-1.5 py-0.5 rounded' }, `${dataPoint.trades_count || 0} Trades`)
+                        ]),
+                        React.createElement('div', { key: 'dpnl', className: `font-extrabold flex justify-between gap-4 ${isPositive ? 'text-emerald-400' : 'text-rose-400'}` }, [
+                            React.createElement('span', { key: 'k1', className: 'text-gray-400' }, 'Daily P&L:'),
+                            React.createElement('span', { key: 'v1', className: 'mono font-black' }, `${isPositive ? '+' : '-'}$${Math.abs(dailyPnl).toFixed(2)}`)
+                        ]),
+                        React.createElement('div', { key: 'cpnl', className: 'font-extrabold text-indigo-300 flex justify-between gap-4 mt-0.5' }, [
+                            React.createElement('span', { key: 'k2', className: 'text-gray-400' }, 'Cumulative P&L:'),
+                            React.createElement('span', { key: 'v2', className: 'mono font-black' }, `${cumPnl >= 0 ? '+' : '-'}$${Math.abs(cumPnl).toFixed(2)}`)
+                        ]),
+                        React.createElement('div', { key: 'wr', className: 'font-semibold text-gray-400 text-[10px] flex justify-between gap-4 mt-1 pt-1 border-t border-gray-800' }, [
+                            React.createElement('span', { key: 'k3' }, 'Daily Win Rate:'),
+                            React.createElement('span', { key: 'v3', className: 'text-emerald-400 font-extrabold' }, `${(dataPoint.win_rate || 100).toFixed(1)}%`)
+                        ])
+                    ]);
+                }
+                return null;
+            };
+
+            const ChartApp = () => {
+                return React.createElement(
+                    ResponsiveContainer,
+                    { width: '100%', height: '100%' },
+                    React.createElement(
+                        LineChart,
+                        { data: dailyData, margin: { top: 20, right: 30, left: 15, bottom: 10 } },
+                        React.createElement(CartesianGrid, { strokeDasharray: '3 3', stroke: '#1e293b', vertical: false }),
+                        React.createElement(XAxis, { 
+                            dataKey: 'date', 
+                            stroke: '#94a3b8', 
+                            fontSize: 11, 
+                            tickLine: false,
+                            dy: 5
+                        }),
+                        React.createElement(YAxis, { 
+                            stroke: '#94a3b8', 
+                            fontSize: 11, 
+                            tickFormatter: (v) => `$${v}`,
+                            tickLine: false,
+                            dx: -5
+                        }),
+                        React.createElement(Tooltip, { content: React.createElement(CustomTooltip) }),
+                        React.createElement(Legend, { 
+                            wrapperStyle: { paddingTop: '10px', fontSize: '12px', fontWeight: '700' } 
+                        }),
+                        React.createElement(ReferenceLine, { y: 0, stroke: '#475569', strokeDasharray: '3 3', label: { value: 'Break Even ($0)', fill: '#64748b', fontSize: 10, position: 'insideBottomRight' } }),
+                        React.createElement(Line, {
+                            type: 'monotone',
+                            dataKey: 'daily_pnl',
+                            name: 'Daily Realized P&L ($)',
+                            stroke: '#10b981',
+                            strokeWidth: 3,
+                            dot: { fill: '#10b981', r: 5, strokeWidth: 2, stroke: '#064e3b' },
+                            activeDot: { r: 8, fill: '#34d399', stroke: '#ffffff', strokeWidth: 2 }
+                        }),
+                        React.createElement(Line, {
+                            type: 'monotone',
+                            dataKey: 'cumulative_pnl',
+                            name: 'Cumulative P&L Curve ($)',
+                            stroke: '#6366f1',
+                            strokeWidth: 2.5,
+                            strokeDasharray: '5 5',
+                            dot: { fill: '#6366f1', r: 3 },
+                            activeDot: { r: 6, fill: '#818cf8' }
+                        })
+                    )
+                );
+            };
+
+            try {
+                if (!rechartsReactRoot) {
+                    rechartsReactRoot = ReactDOM.createRoot(container);
+                }
+                rechartsReactRoot.render(React.createElement(ChartApp));
+            } catch (err) {
+                console.error("Failed to render Recharts component:", err);
+            }
+        }
+
+        async function fetchDbHistory() {
+            try {
+                const response = await fetch('/api/history?limit=50');
+                const data = await response.json();
+                
+                if (data.status === "success") {
+                    const summary = data.summary || {};
+                    const totalTrades = summary.total_persisted_trades || 0;
+                    const execTrades = summary.executed_trades || 0;
+                    const totalPnl = summary.total_pnl || 0.0;
+                    const winRate = summary.win_rate !== undefined ? summary.win_rate : 100.0;
+                    const avgAiScore = summary.average_ai_score || 0.0;
+
+                    const totalElem = document.getElementById("db-stat-total");
+                    if (totalElem) totalElem.innerText = totalTrades;
+
+                    const execElem = document.getElementById("db-stat-executed");
+                    if (execElem) execElem.innerText = execTrades;
+
+                    const pnlElem = document.getElementById("db-stat-pnl");
+                    if (pnlElem) {
+                        const pnlFormatted = `${totalPnl >= 0 ? '+' : '-'}$${Math.abs(totalPnl).toFixed(2)}`;
+                        pnlElem.innerText = pnlFormatted;
+                        pnlElem.className = `text-lg font-black mono mt-0.5 ${totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+                    }
+
+                    const winElem = document.getElementById("db-stat-winrate");
+                    if (winElem) winElem.innerText = `${winRate.toFixed(1)}%`;
+
+                    const avgElem = document.getElementById("db-stat-avg-score");
+                    if (avgElem) avgElem.innerText = `${avgAiScore.toFixed(1)} / 100`;
+
+                    const badgeNav = document.getElementById("nav-trade-count-badge");
+                    if (badgeNav) badgeNav.innerText = `${execTrades} Executed`;
+
+                    const trades = data.trades || [];
+                    const tbody = document.getElementById("db-trades-tbody");
+
+                    if (trades.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="10" class="py-8 text-center text-gray-500 font-semibold">
+                                    No trade executions recorded in SQLite database yet. Trigger a bot execution above!
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    let rowsHtml = "";
+                    trades.forEach(t => {
+                        const isExecuted = t.status === "EXECUTED";
+                        const statusClass = isExecuted
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                            : "bg-amber-500/10 text-amber-400 border-amber-500/30";
+                        
+                        const formattedTime = t.timestamp ? new Date(t.timestamp).toLocaleTimeString() : 'N/A';
+                        const entryPrice = t.entry_price || 0.0;
+                        const exitPrice = t.exit_price || t.take_profit || entryPrice;
+                        const pnl = t.pnl !== undefined ? t.pnl : 0.0;
+                        
+                        // Compute return %
+                        let roiPct = 0.0;
+                        if (entryPrice > 0 && isExecuted) {
+                            const isLong = (t.side || "").toUpperCase() === "BUY" || (t.side || "").toUpperCase() === "LONG";
+                            const priceDiff = isLong ? (exitPrice - entryPrice) : (entryPrice - exitPrice);
+                            roiPct = (priceDiff / entryPrice) * 100 * (t.leverage || 1);
+                        }
+
+                        const pnlClass = pnl >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                        const pnlSign = pnl >= 0 ? '+' : '-';
+
+                        rowsHtml += `
+                            <tr class="hover:bg-gray-900/50 transition-colors">
+                                <td class="py-3 px-3">
+                                    <div class="font-extrabold text-white">#${t.id}</div>
+                                    <div class="text-[10px] text-gray-500 mono">${formattedTime}</div>
+                                </td>
+                                <td class="py-3 px-3">
+                                    <div class="font-extrabold text-white mono">${t.symbol}</div>
+                                    <div class="text-[10px] text-indigo-300 font-semibold">${t.strategy} (${t.timeframe || '1m'})</div>
+                                </td>
+                                <td class="py-3 px-3">
+                                    <span class="font-black ${t.side === 'BUY' || t.side === 'LONG' ? 'text-emerald-400' : 'text-rose-400'}">${t.side}</span>
+                                    <span class="text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 ml-1 font-bold">${t.leverage}x</span>
+                                </td>
+                                <td class="py-3 px-3 mono text-gray-300 font-extrabold">
+                                    ${(t.amount || 0).toFixed(t.symbol && t.symbol.startsWith('BTC') ? 4 : 2)}
+                                </td>
+                                <td class="py-3 px-3 mono font-black text-white">
+                                    $${entryPrice.toLocaleString('en-US', {minimumFractionDigits: entryPrice < 10 ? 4 : 2, maximumFractionDigits: entryPrice < 10 ? 4 : 2})}
+                                </td>
+                                <td class="py-3 px-3 mono font-black text-indigo-300">
+                                    $${exitPrice.toLocaleString('en-US', {minimumFractionDigits: entryPrice < 10 ? 4 : 2, maximumFractionDigits: entryPrice < 10 ? 4 : 2})}
+                                </td>
+                                <td class="py-3 px-3">
+                                    ${isExecuted ? `
+                                        <div class="font-black mono text-xs ${pnlClass}">${pnlSign}$${Math.abs(pnl).toFixed(2)}</div>
+                                        <div class="text-[10px] font-extrabold ${pnlClass}">${pnlSign}${Math.abs(roiPct).toFixed(2)}% ROI</div>
+                                    ` : `
+                                        <div class="font-bold text-gray-500 text-xs mono">$0.00</div>
+                                        <div class="text-[10px] text-gray-500">N/A</div>
+                                    `}
+                                </td>
+                                <td class="py-3 px-3 mono text-[10px]">
+                                    <div class="text-rose-400 font-bold">SL: $${(t.stop_loss || 0).toFixed(entryPrice < 10 ? 4 : 2)}</div>
+                                    <div class="text-emerald-400 font-bold">TP: $${(t.take_profit || 0).toFixed(entryPrice < 10 ? 4 : 2)}</div>
+                                </td>
+                                <td class="py-3 px-3">
+                                    <div class="font-black ${t.ai_score >= 75 ? 'text-emerald-400' : 'text-amber-400'} mono">${t.ai_score || 0} / 100</div>
+                                    <div class="text-[10px] font-bold ${t.ai_approved ? 'text-emerald-400' : 'text-amber-400'}">${t.ai_approved ? '✓ Approved' : '✗ Blocked'}</div>
+                                </td>
+                                <td class="py-3 px-3 text-right">
+                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border ${statusClass} inline-block">
+                                        ${t.status}
+                                    </span>
+                                    ${t.order_id ? `<div class="text-[9px] text-gray-500 mono mt-0.5">ID: ${t.order_id}</div>` : ''}
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    tbody.innerHTML = rowsHtml;
+                }
+            } catch (err) {
+                console.error("Failed to fetch SQLite trade history:", err);
+            }
+        }
+
+        async function fetchDbLogs() {
+            try {
+                const response = await fetch('/api/logs?limit=50');
+                const data = await response.json();
+                
+                if (data.status === "success") {
+                    const logs = data.logs || [];
+                    const tbody = document.getElementById("db-logs-tbody");
+
+                    if (logs.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="py-8 text-center text-gray-500 font-semibold">
+                                    No system performance logs stored in SQLite yet.
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    let rowsHtml = "";
+                    logs.forEach(l => {
+                        const isError = l.log_level === "ERROR";
+                        const levelClass = isError 
+                            ? "bg-rose-500/10 text-rose-400 border-rose-500/20" 
+                            : (l.log_level === "WARNING" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-blue-500/10 text-blue-400 border-blue-500/20");
+
+                        const formattedTime = l.timestamp ? new Date(l.timestamp).toLocaleTimeString() : 'N/A';
+
+                        rowsHtml += `
+                            <tr class="hover:bg-gray-900/50 transition-colors">
+                                <td class="py-2.5 px-3">
+                                    <div class="font-extrabold text-white">#${l.id}</div>
+                                    <div class="text-[10px] text-gray-500 mono">${formattedTime}</div>
+                                </td>
+                                <td class="py-2.5 px-3">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold border ${levelClass}">
+                                        ${l.log_level}
+                                    </span>
+                                </td>
+                                <td class="py-2.5 px-3 font-extrabold text-indigo-300">${l.action}</td>
+                                <td class="py-2.5 px-3 mono text-[11px] text-gray-400">${l.symbol || l.strategy || 'System'}</td>
+                                <td class="py-2.5 px-3 text-gray-300">${l.details || ''}</td>
+                            </tr>
+                        `;
+                    });
+
+                    tbody.innerHTML = rowsHtml;
+                }
+            } catch (err) {
+                console.error("Failed to fetch SQLite logs:", err);
+            }
+        }
+
+        async function clearDbHistory() {
+            if (!confirm("Are you sure you want to clear all trade history and logs from the SQLite database?")) return;
+
+            try {
+                const response = await fetch('/api/history', { method: 'DELETE' });
+                const data = await response.json();
+                if (data.status === "success") {
+                    fetchDbHistory();
+                    fetchDbLogs();
+                }
+            } catch (err) {
+                console.error("Failed to clear SQLite history:", err);
+            }
+        }
+
+        function switchDbViewTab(tab) {
+            const tradesBtn = document.getElementById("db-tab-trades");
+            const logsBtn = document.getElementById("db-tab-logs");
+            const tradesContainer = document.getElementById("db-trades-table-container");
+            const logsContainer = document.getElementById("db-logs-table-container");
+
+            if (tab === 'trades') {
+                tradesBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-black transition-all bg-indigo-600/30 text-white border border-indigo-500/50 cursor-pointer";
+                logsBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gray-900 text-gray-400 border border-gray-800 hover:text-gray-200 cursor-pointer";
+                tradesContainer.classList.remove("hidden");
+                logsContainer.classList.add("hidden");
+                fetchDbHistory();
+            } else {
+                logsBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-black transition-all bg-indigo-600/30 text-white border border-indigo-500/50 cursor-pointer";
+                tradesBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-gray-900 text-gray-400 border border-gray-800 hover:text-gray-200 cursor-pointer";
+                logsContainer.classList.remove("hidden");
+                tradesContainer.classList.add("hidden");
+                fetchDbLogs();
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener("DOMContentLoaded", () => {
+            fetchTickersFallback().then(() => {
+                initBinanceWebSocket();
+                recalculateRiskSummary();
+            });
+            fetchDbHistory();
+            loadPerformanceAnalytics();
+            recalculateRiskSummary();
+        });
+    </script>
+</body>
+</html>

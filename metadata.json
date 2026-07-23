@@ -1,0 +1,6 @@
+{
+  "name": "CryptoBot AI",
+  "description": "Trading bot for cryptocurrency that uses machine learning to predict market trends in real-time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
