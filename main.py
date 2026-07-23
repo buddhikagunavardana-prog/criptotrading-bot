@@ -270,7 +270,7 @@ async def start_bot(request: FuturesTradeRequest):
     """
     POST endpoint to initialize and start a futures trading bot session.
     Validates request payload, loads strategy dynamically via StrategyFactory,
-    evaluates AI score & risk levels, and executes futures order via CCXT if AI score >= 75.
+    evaluates AI score & risk levels, and executes futures order via CCXT if AI score >= 30.
     """
     try:
         logger.info(f"Received /api/start_bot request: {request.dict()}")
