@@ -280,7 +280,7 @@ async def start_bot(request: FuturesTradeRequest):
         strategy_engine = BackendStrategyFactory.create_strategy_instance(
             request.specific_strategy,
             ccxt_handler=global_ccxt_handler,
-            min_ai_score_threshold=strategy_meta.get("min_score", 75.0)
+            min_ai_score_threshold=strategy_meta.get("min_score", 30.0)
         )
 
         # 2. Execute full strategy pipeline (Indicators -> AI Scoring -> Risk Levels -> CCXT Order)
